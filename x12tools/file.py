@@ -185,7 +185,7 @@ class X12File:
 
     def to_string(self, newlines=None) -> str:
         """
-        Returns the X12 file as a string.
+        Returns the X12 file as a string, updating transaction set lengths.
 
         Parameters
         ----------
