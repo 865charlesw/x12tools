@@ -1,1 +1,2 @@
-from .file import X12File, X12Segment
+from .file import X12File
+from .segment import X12Segment
