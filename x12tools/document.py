@@ -3,27 +3,27 @@ from typing import Type, Self, Optional
 from dataclasses import dataclass
 
 from .segment import X12Segment
-from .constants import ISA_PADS
+from .constants import ELEMENT_SEPARATOR_INDEX, SEGMENT_TERMINATOR_INDEX
 
 
 @dataclass
-class X12File:
+class X12Document:
     """
-    Represents an X12 file.
+    Represents an X12 document.
 
     Attributes
     ----------
     segments : list of X12Segment
-        The segments within the X12 file.
+        The segments within the X12 document.
     segment_terminator : str, optional
         The character used to terminate segments (default is "~").
-    data_element_separator : str, optional
+    element_separator : str, optional
         The character used to separate data elements (default is "*").
     """
 
     segments: list[X12Segment]
     segment_terminator: str = "~"
-    data_element_separator: str = "*"
+    element_separator: str = "*"
     file_path: Optional[Path] = None
 
     @classmethod
@@ -34,7 +34,7 @@ class X12File:
         Parameters
         ----------
         content : str
-            The string content to parse.
+            A string (or castable to str) representing the X12 document.
 
         Returns
         -------
@@ -42,19 +42,18 @@ class X12File:
             An instance of X12File.
         """
         content = str(content)
-        content = content.strip().replace("\r", "")
-        isa_length = sum(ISA_PADS) + len(ISA_PADS)
-        segment_terminator = content[isa_length - 1]
-        data_element_separator = content[ISA_PADS[0]]
+        content = content.strip()
+        element_separator = content[ELEMENT_SEPARATOR_INDEX]
+        segment_terminator = content[SEGMENT_TERMINATOR_INDEX]
+        content = content.removesuffix(segment_terminator)
         segments = content.split(segment_terminator)
-        segments = segments[:-1] if segments[-1] == "" else segments
         segments = [
-            X12Segment.from_string(segment, data_element_separator) for segment in segments
+            X12Segment.from_string(segment, element_separator) for segment in segments
         ]
         return cls(
             segments=segments,
             segment_terminator=segment_terminator,
-            data_element_separator=data_element_separator,
+            element_separator=element_separator,
         )
 
     @classmethod
@@ -73,8 +72,9 @@ class X12File:
             An instance of X12File.
         """
         file_path = Path(file_path)
-        obj = cls.from_string(file_path.read_text())
-        obj.file_path = file_path
+        file_content = file_path.read_text()
+        obj = cls.from_string(file_content)
+        obj.file_path = Path(file_path)
         return obj
 
     def get_segments(
@@ -174,9 +174,9 @@ class X12File:
             return self.segments[key]
         return self.get_single_segment(key)[1]
 
-    def update_se_lengths(self):
+    def update_se_lengths(self) -> None:
         """
-        Updates the SE segment lengths based on the number of segments between ST and SE.
+        Updates transaction set trailers to match the actual number of segments.
         """
         for st_idx, st in self.get_segments("ST"):
             control_number = st[2]
@@ -203,7 +203,7 @@ class X12File:
         if newlines or (newlines is None and "\n" not in segment_delimiter):
             segment_delimiter += "\n"
         segments = (
-            segment.to_string(self.data_element_separator) for segment in self.segments
+            segment.to_string(self.element_separator) for segment in self.segments
         )
         return segment_delimiter.join(segments) + segment_delimiter
 

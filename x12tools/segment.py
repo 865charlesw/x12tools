@@ -1,7 +1,7 @@
 import re
 from typing import Type, Self
 
-from .constants import ISA_PADS
+from .constants import ISA_ELEMENT_LENGTHS
 
 
 class X12Segment(list[str]):
@@ -10,7 +10,7 @@ class X12Segment(list[str]):
     """
 
     @classmethod
-    def from_string(cls: Type[Self], content: str, data_element_separator: str) -> Self:
+    def from_string(cls: Type[Self], content: str, element_separator: str) -> Self:
         """
         Creates an X12Segment instance from a string.
 
@@ -18,7 +18,7 @@ class X12Segment(list[str]):
         ----------
         content : str
             The string content to parse.
-        data_element_separator : str
+        element_separator : str
             The character used to separate data elements.
 
         Returns
@@ -26,8 +26,8 @@ class X12Segment(list[str]):
         Self
             An instance of X12Segment.
         """
-        content = content.strip("\n")
-        return cls(content.split(data_element_separator))
+        content = content.strip()
+        return cls(content.split(element_separator))
 
 
     def matches(self, filters: dict[int, str]) -> bool:
@@ -45,15 +45,16 @@ class X12Segment(list[str]):
         bool
             True if the segment matches the filters.
         """
-        return all(re.fullmatch(value, self[idx]) for idx, value in filters.items())
+        filter_matches = (re.fullmatch(value, self[idx]) for idx, value in filters.items())
+        return all(filter_matches)
 
-    def to_string(self, data_element_separator: str) -> str:
+    def to_string(self, element_separator: str) -> str:
         """
         Returns the segment as a string.
 
         Parameters
         ----------
-        data_element_separator : str
+        element_separator : str
             The character to use to separate data elements.
 
         Returns
@@ -63,5 +64,6 @@ class X12Segment(list[str]):
         """
         if self[0] == "ISA":
             for idx, value in enumerate(self):
-                self[idx] = value.rstrip().ljust(ISA_PADS[idx])
-        return data_element_separator.join(self)
+                stripped = value.rstrip()
+                self[idx] = stripped.ljust(ISA_ELEMENT_LENGTHS[idx])
+        return element_separator.join(self)

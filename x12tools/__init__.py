@@ -1,2 +1,2 @@
-from .file import X12File
+from .document import X12Document
 from .segment import X12Segment
