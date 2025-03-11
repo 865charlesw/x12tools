@@ -107,10 +107,10 @@ This is also performed automatically when writing to string or file.
 
 ### Writing Document to String
 
-By default, the document is written without newlines.
+By default, newlines are added after each segment unless the segment terminator itself contains a newline. This can be changed by setting the `newline` parameter to `True` (force added newlines) or `False` (segment terminator only).
 
 ```python
->>> content = document.to_string(newlines=True)
+>>> content = document.to_string()
 >>> print(content)
 ISA*00*          *00*          *ZZ*ABCDEFGHIJKLMNO*ZZ*123456789012345*210101*1253*U*00401*000000001*0*T*:~
 GS*IN*123456789*987654321*20210101*1253*1*X*004010~
