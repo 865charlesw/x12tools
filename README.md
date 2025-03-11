@@ -7,7 +7,7 @@ It can:
 - Parse X12 EDI documents
 - Easily extract segments and their data elements
 - Read and edit segment terminator and data element separator
-- Updates transaction set trailers to match the actual number of segments
+- Update transaction set trailers to match the actual number of segments
 - Write documents to string or file
 
 ## Usage
