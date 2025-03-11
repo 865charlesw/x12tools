@@ -1,8 +1,8 @@
 # x12tools
 
-A set of tools for working with X12 EDI (Electronic Data Interchange) documents.
+A Python module for working with X12 EDI (Electronic Data Interchange) documents.
 
-## Features
+It can:
 
 - Parse X12 EDI documents
 - Easily extract segments and their data elements
