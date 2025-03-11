@@ -95,6 +95,8 @@ Note that elements in the ISA segment will be padded appropriately when writing 
 [(4, ['N1', 'BT', 'BUYER ORGANIZATION', '92', '5678'])]
 ```
 
+Note that for readability, the segment removal is not reflected in other sections below.
+
 ### Updating Transaction Set Trailers
 
 This is also performed automatically when writing to string or file.
